@@ -12,7 +12,7 @@
 #define READ_ENCODERS  'e'
 #define MOTOR_SPEEDS   'm'
 #define MOTOR_RAW_PWM  'o'
-#define PING           'p'
+#define CMD_PING       'p'
 #define RESET_ENCODERS 'r'
 #define SERVO_WRITE    's'
 #define SERVO_READ     't'
@@ -23,5 +23,3 @@
 #define RIGHT           1
 
 #endif
-
-
