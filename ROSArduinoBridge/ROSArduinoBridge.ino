@@ -70,7 +70,7 @@
 #undef USE_SERVOS     // Disable use of PWM servos
 
 /* Serial port baud rate */
-#define BAUDRATE     57600
+#define BAUDRATE     115200
 
 /* Maximum PWM signal */
 #define MAX_PWM        255
@@ -140,7 +140,7 @@ long arg2;
 
 /* Clear the current command parameters */
 void resetCommand() {
-  cmd = NULL;
+  cmd = '\0';
   memset(argv1, 0, sizeof(argv1));
   memset(argv2, 0, sizeof(argv2));
   arg1 = 0;
@@ -182,7 +182,7 @@ int runCommand() {
     else if (arg2 == 1) pinMode(arg1, OUTPUT);
     Serial.println("OK");
     break;
-  case PING:
+  case CMD_PING:
     Serial.println(Ping(arg1));
     break;
 #ifdef USE_SERVOS
@@ -253,24 +253,25 @@ void setup() {
 #ifdef USE_BASE
   #ifdef ARDUINO_ENC_COUNTER
     //set as inputs
-    DDRD &= ~(1<<LEFT_ENC_PIN_A);
-    DDRD &= ~(1<<LEFT_ENC_PIN_B);
-    DDRC &= ~(1<<RIGHT_ENC_PIN_A);
-    DDRC &= ~(1<<RIGHT_ENC_PIN_B);
+    DDRK &= ~(1<<LEFT_ENC_PIN_A);
+    DDRK &= ~(1<<LEFT_ENC_PIN_B);
+    DDRK &= ~(1<<RIGHT_ENC_PIN_A);
+    DDRK &= ~(1<<RIGHT_ENC_PIN_B);
     
     //enable pull up resistors
-    PORTD |= (1<<LEFT_ENC_PIN_A);
-    PORTD |= (1<<LEFT_ENC_PIN_B);
-    PORTC |= (1<<RIGHT_ENC_PIN_A);
-    PORTC |= (1<<RIGHT_ENC_PIN_B);
+    PORTK |= (1<<LEFT_ENC_PIN_A);
+    PORTK |= (1<<LEFT_ENC_PIN_B);
+    PORTK |= (1<<RIGHT_ENC_PIN_A);
+    PORTK |= (1<<RIGHT_ENC_PIN_B);
     
     // tell pin change mask to listen to left encoder pins
     PCMSK2 |= (1 << LEFT_ENC_PIN_A)|(1 << LEFT_ENC_PIN_B);
+    
     // tell pin change mask to listen to right encoder pins
-    PCMSK1 |= (1 << RIGHT_ENC_PIN_A)|(1 << RIGHT_ENC_PIN_B);
+    PCMSK2 |= (1 << RIGHT_ENC_PIN_A)|(1 << RIGHT_ENC_PIN_B);
     
     // enable PCINT1 and PCINT2 interrupt in the general interrupt mask
-    PCICR |= (1 << PCIE1) | (1 << PCIE2);
+    PCICR |= (1 << PCIE2);
   #endif
   initMotorController();
   resetPID();
@@ -300,8 +301,8 @@ void loop() {
 
     // Terminate a command with a CR
     if (chr == 13) {
-      if (arg == 1) argv1[index] = NULL;
-      else if (arg == 2) argv2[index] = NULL;
+      if (arg == 1) argv1[index] = '\0';
+      else if (arg == 2) argv2[index] = '\0';
       runCommand();
       resetCommand();
     }
@@ -310,7 +311,7 @@ void loop() {
       // Step through the arguments
       if (arg == 0) arg = 1;
       else if (arg == 1)  {
-        argv1[index] = NULL;
+        argv1[index] = '\0';
         arg = 2;
         index = 0;
       }
@@ -355,4 +356,3 @@ void loop() {
   }
 #endif
 }
-
